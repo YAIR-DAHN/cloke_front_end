@@ -27,7 +27,7 @@
     { "headerName": "יום", "cellStyle": { "backgroundColor": "#fdfdfd", "width": "60px", "text-align": "center" }, "defaultColumnTypeName": "Text" },
     { "headerName": "כניסה 1", "cellStyle": { "backgroundColor": "#f8f8f8", "width": "100px", "text-align": "center" }, "defaultColumnTypeName": "Custom type" },
     { "headerName": "יציאה 1", "cellStyle": { "backgroundColor": "#fdfdfd", "width": "100px", "text-align": "center" }, "defaultColumnTypeName": "Text" },
-    { "headerName": "כניסה 2", "cellStyle": { "backgroundColor": "#f8f8f8", "width": "100px", "text-align": "center" }, "defaultColumnTypeName": "Text" },
+    { "headerName": "כניסה 2", "cellStyle": { "backgroundColor": "#f8f8f8", "width": "100px", "text-align": "center" }, "defaultColumnTypeName": "Custom type 2" },
     { "headerName": "יציאה 2", "cellStyle": { "backgroundColor": "#fdfdfd", "width": "100px", "text-align": "center" }, "defaultColumnTypeName": "Text" },
     { "headerName": "כניסה 3", "cellStyle": { "backgroundColor": "#f8f8f8", "width": "100px", "text-align": "center" }, "defaultColumnTypeName": "Text" },
     { "headerName": "יציאה 3", "cellStyle": { "backgroundColor": "#fdfdfd", "width": "100px", "text-align": "center" }, "defaultColumnTypeName": "Text" },
@@ -36,7 +36,15 @@
     {
         "name": "Custom type",
         "textValidation": {
-            "func": (cellText) => this.isTimeGreaterThan(cellText, this.inBonusTime),
+            "func": (cellText) => this.isTimeGreaterThan(cellText, this.oneBonusTime),
+            "setTextToDefaultOnFail": false,
+            "failedStyle": { "color": "green", "fontWeight": "bold" }
+        }
+    },
+    {
+        "name": "Custom type 2",
+        "textValidation": {
+            "func": (cellText) => this.isTimeGreaterThan(cellText, this.twoBonusTime),
             "setTextToDefaultOnFail": false,
             "failedStyle": { "color": "green", "fontWeight": "bold" }
         }
@@ -83,7 +91,9 @@ export default {
             showTable: false, //האם להציג את הטבלה
             name: "", //שם האברך שנבחר
             receivedData: [], //הדאטה שמקבלים מהשרת
-            inBonusTime: "09:14:00", //שעת כניסה לבונוס
+            oneBonusTime: "09:14:00", //שעת כניסה ראשונה לבונוס
+            twoBonusTime: "14:35:00", //שעת כניסה שניה לבונוס
+
         };
 
     },
@@ -149,18 +159,19 @@ export default {
 
         },
 
-        //השוואה של שעות
+        // חישוב שעות כניסה לבונוס
         isTimeGreaterThan(time1, time2) {
             // המרת המחרוזות לאובייקטים Date
             const date1 = new Date(`1970-01-01T${time1}Z`);
             const date2 = new Date(`1970-01-01T${time2}Z`);
-
-            console.log(date1);
-            // השוואת האובייקטים Date
-            if (date1 != "Invalid Date" && date2 != "Invalid Date") {
+            
+            // סינון מקרים של שעות שלא דווחו
+            if (date1 != "Invalid Date") {
                 return date1 > date2;
             }
-
+            else {
+                return true;
+            }
         },
 
     },

@@ -1,23 +1,26 @@
 <template>
   <div>
-    <h1>ברוכים הבאים לניהול נתוני שעון נוכחות</h1>
+    <h1>ברוכים הבאים למערכת ניהול נתוני שעון נוכחות</h1>
     <div id="boxInput">
       <label for="file-upload" class="custom-file-upload">
         לחץ כאן לבחור קובץ
       </label>
     </div>
     <input id="file-upload" class="file-upload" v-if="!inLoad" type="file" @change="uploadFile" accept=".dat" />
-    <router-link to="/table"  class="upload-button" v-if="!inLoad">הצג טבלאות</router-link>
+    <router-link to="/table"  class="upload-button" v-if="!inLoad && dataInLocal">הצג טבלאות</router-link>
 
   </div>
-  <div class="loader" v-if="inLoad"></div>
+  <div v-if="inLoad" id="loaders-box">
+  <div class="loader" ></div>
+  <div class="loader2"></div>
 
+</div>
   <div v-if="isUploadSuccessful" class="success-message">
     הקובץ הועלה בהצלחה
   </div>
   <div id="footer">
   <hr/>
-  <p>מערכת זאת נבנתה ע"י .y.d</p>
+  <p>מערכת זאת נבנתה ע"י y.d. Systems</p>
 </div>
 </template>
 
@@ -30,6 +33,7 @@ export default {
       fileContent: '',
       isUploadSuccessful: false, // משתנה להצגת הודעה על העלאה מוצלחת
       inLoad: false, // משתנה להצגת מסך טעינה
+      dataInLocal: false,
       responseData: []
 
     };
@@ -55,15 +59,25 @@ export default {
           console.log(response); // עקוב אחרי התגובה מהשרת
           this.responseData = response.data;
           localStorage.setItem('data', JSON.stringify(response.data));  
-          this.inLoad = false;        
-          this.isUploadSuccessful = true;
+          this.inLoad = false;  // הסתרת מסך הטעינה      
+          this.isUploadSuccessful = true; // הצגת הודעה על העלאה מוצלחת
+          this.dataInLocal = true; // הגדרה שקיים דאטה בלוקל סטורג
+
           setTimeout(() => {
             this.isUploadSuccessful = false;
           }, 6000);
         });
     },
+    
 
+  },
+  mounted() {
+    // בדיקה האם קיימים נתונים בלוקל סטורג
+    if (localStorage.getItem('data')) {
+      this.dataInLocal = true;
+    }
   }
+ 
 };
 </script>
 
@@ -103,10 +117,12 @@ input[type="file"] {
   color: white;
   font-size: 18px;
   border: none;
-  border-radius: 10px;
+  border-radius: 25px;
   cursor: pointer;
   transition: all 0.3s ease-in-out;
-
+  text-decoration: none;
+  text-align: center; /* טקסט במרכז אופקי */
+  line-height: 50px; /* טקסט במרכז רוחבי */
 }
 
 .success-message {
@@ -132,35 +148,13 @@ input[type="file"] {
   }
 }
 
-
-/* HTML: <div class="loader"></div> */
-/* .loader {
-  width: 60px;
-  aspect-ratio: 1;
-  margin-right: 48%;
-  margin-top: 10px;
-  border: 15px solid #ddd;
-  border-radius: 50%;
-  position: absolute;
-  top: 70%;
-  left: 47%;
-  transform: rotate(45deg);
+#loaders-box{
+  display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 25px;
 }
-.loader::before {
-  content: "";
-  position: absolute;
-  inset: -15px;
-  border-radius: 50%;
-  border: 15px solid #514b82;
-  animation: l18 2s infinite linear;
-}
-@keyframes l18 {
-    0%   {clip-path:polygon(50% 50%,0 0,0    0,0    0   ,0    0   ,0    0   )}
-    25%  {clip-path:polygon(50% 50%,0 0,100% 0,100% 0   ,100% 0   ,100% 0   )}
-    50%  {clip-path:polygon(50% 50%,0 0,100% 0,100% 100%,100% 100%,100% 100%)}
-    75%  {clip-path:polygon(50% 50%,0 0,100% 0,100% 100%,0    100%,0    100%)}
-    100% {clip-path:polygon(50% 50%,0 0,100% 0,100% 100%,0    100%,0    0   )}
-} */
 
 .loader {
   width: 175px;
@@ -212,6 +206,29 @@ input[type="file"] {
     opacity: 0;
   }
 }
+.loader2 {
+  width: fit-content;
+  font-weight: bold;
+  font-family: monospace;
+  font-size: 30px;
+  background: linear-gradient(135deg,#0000 calc(50% - 0.5em),#42b983 0 calc(50% + 0.5em),#0000 0) right/300% 100%;
+  animation: l22 2s infinite;
+}
+.loader2::before {
+  content: "הקובץ בטעינה...";
+  color: #0000;
+  padding: 0 5px;
+  background: inherit;
+  background-image: linear-gradient(135deg,#000 calc(50% - 0.5em),#fff 0 calc(50% + 0.5em),#000 0);
+  -webkit-background-clip:text;
+          background-clip:text;
+}
+
+@keyframes l22{
+  100%{background-position: left}
+}
+
+
 #footer {
   position: fixed;
   bottom: 0;
